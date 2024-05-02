@@ -29,39 +29,52 @@ export default {
         },
     ],
 
-    callback: ({ interaction }) => {
-        if (interaction) {
+    callback: async ({ interaction }) => {
 
-            if (!interaction.options.getInteger('nation_id')) {
+        await interaction.deferReply()
 
-                const discordid = (interaction.options.getUser('discord_user')!.id).toString()
+        if (!interaction.options.getInteger('nation_id')) {
 
-                userInfo.loadDatabase((err) => {    // Callback is optional
+            const discordid = (interaction.options.getUser('discord_user')!.id).toString()
 
-                    userInfo.find({ discordID: discordid }, async (err: Error | null, docs: any[]) => {
+            userInfo.loadDatabase((err) => {    // Callback is optional
 
-                        if (docs[0] === undefined) {
+                userInfo.find({ discordID: discordid }, async (err: Error | null, docs: any[]) => {
 
-                            let embed = new x.Embed()
-                                .setTitle('Error!')
-                                .setDescription(`<@${discordid}> is not in my database!`)
+                    if (docs[0] === undefined) {
 
-                            interaction.reply({
-                                embeds: [embed]
-                            })
-                            return
+                        let embed = new x.Embed()
+                            .setTitle('Error!')
+                            .setDescription(`<@${discordid}> is not in my database!`)
 
-                        } else {
+                        interaction.editReply({
+                            embeds: [embed]
+                        })
+                        return
 
-                            const endpoint = `https://api.politicsandwar.com/graphql?api_key=${baam}`
+                    } else {
 
-                            const query = gql`
+                        const endpoint = `https://api.politicsandwar.com/graphql?api_key=${baam}`
+
+                        const query = gql`
                             { nations (id: ${docs[0].nationID}, first: 50) 
                             { data 
                                 { nation_name, leader_name, flag, alliance{name}, num_cities, score }}}
                                 `
 
-                            const data = await request(endpoint, query)
+                        const data = await request(endpoint, query)
+
+                        if (data.nations.data[0] == null) {
+
+                            let embed = new x.Embed()
+                                .setTitle('Hmm...')
+                                .setDescription(`This is <@${discordid}>'s nation! - https://politicsandwar.com/nation/id=${docs[0].nationID}\n... but the nation doesn't exist anymore <:pikaThink:993341599146848307>`)
+                                .setThumbnail("https://live.staticflickr.com/65535/52191970736_6858c2eccc_o.png")
+
+                            interaction.editReply({
+                                embeds: [embed]
+                            })
+                        } else {
 
                             function allianceNull(AAname: any) {
                                 if (AAname == null) {
@@ -84,45 +97,58 @@ export default {
                                     { name: 'Verified', value: (docs[0].verification.verified).toUpperCase(), inline: true },
                                 )
 
-                            interaction.reply({
+                            interaction.editReply({
                                 embeds: [embed]
                             })
 
                         }
-
-                    });
+                    }
 
                 });
-            } else if (!interaction.options.getUser('discord_user')) {
 
-                const nationid = interaction.options.getInteger('nation_id')
+            });
+        } else if (!interaction.options.getUser('discord_user')) {
 
-                userInfo.loadDatabase((err) => { // Callback is optional
+            const nationid = interaction.options.getInteger('nation_id')
 
-                    userInfo.find({ nationID: nationid }, async (err: Error | null, docs: any[]) => {
+            userInfo.loadDatabase((err) => { // Callback is optional
 
-                        if (docs[0] === undefined) {
+                userInfo.find({ nationID: nationid }, async (err: Error | null, docs: any[]) => {
 
-                            let embed = new x.Embed()
-                                .setTitle('Error!')
-                                .setDescription(`**${nationid}**: This nation ID is not in my database!`)
+                    if (docs[0] === undefined) {
 
-                            interaction.reply({
-                                embeds: [embed]
-                            })
-                            return
+                        let embed = new x.Embed()
+                            .setTitle('Error!')
+                            .setDescription(`**${nationid}**: This nation ID is not in my database!`)
 
-                        } else {
+                        interaction.editReply({
+                            embeds: [embed]
+                        })
+                        return
 
-                            const endpoint = `https://api.politicsandwar.com/graphql?api_key=${baam}`
+                    } else {
 
-                            const query = gql`
+                        const endpoint = `https://api.politicsandwar.com/graphql?api_key=${baam}`
+
+                        const query = gql`
                             { nations (id: ${docs[0].nationID}, first: 50) 
                             { data 
                                 { nation_name, leader_name, flag, alliance{name}, num_cities, score }}}
                                 `
 
-                            const data = await request(endpoint, query)
+                        const data = await request(endpoint, query)
+
+                        if (data.nations.data[0] == null) {
+
+                            let embed = new x.Embed()
+                                .setTitle('Hmm...')
+                                .setDescription(`**${nationid}**: This nation ID belongs to <@${docs[0].discordID}>... but the nation doesn't exist anymore <:pikaThink:993341599146848307>`)
+                                .setThumbnail("https://live.staticflickr.com/65535/52191970736_6858c2eccc_o.png")
+
+                            interaction.editReply({
+                                embeds: [embed]
+                            })
+                        } else {
 
                             function allianceNull(AAname: any) {
                                 if (AAname == null) {
@@ -145,14 +171,14 @@ export default {
                                     { name: 'Verified', value: (docs[0].verification.verified).toUpperCase(), inline: true },
                                 )
 
-                            interaction.reply({
+                            interaction.editReply({
                                 embeds: [embed]
                             })
                         }
+                    }
 
-                    });
                 });
-            }
+            });
         }
     },
 } as ICommand

@@ -2,10 +2,9 @@ import DiscordJS, { Intents } from 'discord.js'
 import WOKCommands from 'wokcommands'
 import path from 'path'
 import datastore from 'nedb';
-const discordModals = require('discord-modals')
+import { transferBank, attwarwatch, transferAmaya, } from './exports';
 const userInfo = new datastore({ filename: 'userInfo.db' });
-const { token } = require('./config.json')
-const { mongouri } = require('./config.json')
+const { token, WOK_URL } = require('./config.json')
 
 const client = new DiscordJS.Client({
     intents: [
@@ -29,13 +28,17 @@ client.on('ready', async () => {
     new WOKCommands(client, {
         commandsDir: path.join(__dirname, 'commands'),
         typeScript: true,
-        testServers: ['373295719907459072', '947311965397717013'],
-        botOwners: ['668189508507795488', '247974380305514496'],
+        testServers: ['373295719907459072'],
+        botOwners: ['668189508507795488'],
         dbOptions,
-        mongoUri: mongouri
+        mongoUri: WOK_URL
     })
 
     client.user!.setPresence({ activities: [{ name: "Baam complain", type: 'LISTENING' }] });
+
+    setInterval(transferBank, 60*60*2000)
+    setInterval(transferAmaya, 60*60*2000)
+    attwarwatch()
 
 })
 
@@ -55,6 +58,5 @@ client.on('guildMemberAdd', member => {
     });
 })
 
-discordModals(client)
 export { client }
 client.login(token)

@@ -24,7 +24,9 @@ export default {
         }
     ],
 
-    callback: ({ interaction, guild }) => {
+    callback: async ({ interaction, guild }) => {
+
+        await interaction.deferReply()
 
         const member = guild!.members.cache.get(interaction.user.id)
 
@@ -41,7 +43,7 @@ export default {
                             .setTitle('Error!')
                             .setDescription(`<@${discordid}> hasn't verified yet!`)
 
-                        interaction.reply({
+                        interaction.editReply({
                             embeds: [embed]
                         })
                         return
@@ -57,7 +59,7 @@ export default {
                                 { name: 'Money', value: `$${thousands_separators(money1)}`, inline: true },
                             ])
 
-                        interaction.reply({
+                        interaction.editReply({
                             embeds: [embed]
                         })
                     }
@@ -78,7 +80,7 @@ export default {
                             .setTitle('Error!')
                             .setDescription(`You haven't verified yet!`)
 
-                        interaction.reply({
+                        interaction.editReply({
                             embeds: [embed]
                         })
                         return
@@ -94,7 +96,7 @@ export default {
                                 { name: 'Money', value: `$${thousands_separators(money1)}`, inline: true },
                             ])
 
-                        interaction.reply({
+                        interaction.editReply({
                             embeds: [embed]
                         })
                     }

@@ -2,6 +2,7 @@ import { ICommand } from "wokcommands";
 import DiscordJS, { Permissions } from 'discord.js';
 import { request, gql } from 'graphql-request'
 const { baam } = require('../config.json')
+const { warcat } = require('../config.json')
 import * as x from '../exports';
 
 export default {
@@ -22,6 +23,8 @@ export default {
 
     callback: async ({ interaction, guild, channel }) => {
 
+        await interaction.deferReply()
+
         const member = guild!.members.cache.get(interaction.user.id)
         const nationid = interaction.options.getNumber('nation_id')!
 
@@ -41,14 +44,14 @@ export default {
                 let embed = new x.Embed()
                     .setTitle('Error!')
                     .setDescription(`The nation ID **${nationid}** is invalid! Such a nation does not exist!`)
-                await interaction.reply({
+                await interaction.editReply({
                     embeds: [embed]
                 })
                 return
             } else {
 
-                const madeChannel: any = await interaction.guild!.channels.create(`war_channel-${nationid}`, {
-                    parent: '919319663735865424',
+                const madeChannel: any = await interaction.guild!.channels.create(`war-${data.nations.data[0].nation_name}`, {
+                    parent: warcat,
                     permissionOverwrites: [
                         {
                             id: interaction.user.id,
@@ -113,7 +116,7 @@ export default {
                         { name: 'Alliance', value: (`${data.nations.data[0].alliance.name}`), inline: true },
                     ])
 
-                await interaction.reply({ embeds: [embed] })
+                await interaction.editReply({ embeds: [embed] })
 
                 madeChannel.send(`<@${interaction.user.id}>`)
                 madeChannel.send({ embeds: [embed1] })
@@ -129,7 +132,7 @@ export default {
                 .setTitle('Error!')
                 .setDescription(`You don't have the necessary permissions to open a war channel! <:laffno:815323381464432671>`)
 
-            interaction.reply({
+            interaction.editReply({
                 embeds: [embed]
             })
 

@@ -104,7 +104,7 @@ export default {
         } else if (!interaction.options.getUser('discord_user')) {
 
             const madeChannel: any = await interaction.guild!.channels.create(`ticket-${interaction.user.username}`, {
-                parent: '965435921753309227',
+                parent: '895456787644444703',
                 permissionOverwrites: [
                     {
                         id: interaction.user.id,

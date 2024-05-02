@@ -47,7 +47,7 @@ export default {
     testOnly: true,
     minArgs: 1,
     maxArgs: 1,
-    expectedArgs: '<nation_ID> || <verification code>',
+    expectedArgs: '<nation_ID> or <verification code>',
 
     options: [
         {
@@ -65,6 +65,8 @@ export default {
     ],
 
     callback: async ({ interaction, guild }) => {
+
+        await interaction.deferReply()
 
         let discordID = interaction.member?.user.id!
 
@@ -111,7 +113,7 @@ export default {
                             .setTitle('Error!')
                             .setDescription("Your discord account is already associated with a nation ID!\nIf you'd like to re-verify with a different nation ID, please contact <@668189508507795488>")
 
-                        await interaction.reply({
+                        await interaction.editReply({
                             embeds: [embed]
                         })
                         return
@@ -122,7 +124,7 @@ export default {
                             .setTitle('Error!')
                             .setDescription("You've already begun the verification process!\nIf you'd like to cancel the process, please contact <@668189508507795488>")
 
-                        await interaction.reply({
+                        await interaction.editReply({
                             embeds: [embed]
                         })
                         return
@@ -136,7 +138,7 @@ export default {
                                     .setTitle('Error!')
                                     .setDescription("The nation ID you provided is already verified with a discord user!\nIf you'd like to re-verify with a different discord account, please contact <@668189508507795488>")
 
-                                await interaction.reply({
+                                await interaction.editReply({
                                     embeds: [embed]
                                 })
                                 return
@@ -148,11 +150,11 @@ export default {
 
                                     let embed = new x.Embed()
                                         .setTitle('Verification Started!')
-                                        .setDescription("Please check your in-game inbox for the validation code!\nOnce you've received it, please run this command again, but with the `code` option\nThen, proceed to enter the verification code you received")
+                                        .setDescription("Please check your in-game inbox for the validation code!\nOnce you've received it, please run this command again, but only with the `code` option this time\nThen, proceed to enter the verification code you received")
 
                                     userInfo.insert([information], (err: Error | null, newdocs: any[]) => { });
 
-                                    await interaction.reply({
+                                    await interaction.editReply({
                                         embeds: [embed]
                                     })
                                 } else {
@@ -161,7 +163,7 @@ export default {
                                         .setTitle('Error!')
                                         .setDescription("The nation ID your provided was invalid! Please try again.")
 
-                                    await interaction.reply({
+                                    await interaction.editReply({
                                         embeds: [embed]
                                     })
                                 }
@@ -181,7 +183,7 @@ export default {
                             .setTitle('Error!')
                             .setDescription("You haven't run the verification process with your nation ID yet! Please do so first!")
 
-                        await interaction.reply({
+                        await interaction.editReply({
                             embeds: [embed]
                         })
                     } else {
@@ -192,7 +194,7 @@ export default {
                                 .setTitle('Error!')
                                 .setDescription("The verification code you inputted is incorrect! Please try again!")
 
-                            await interaction.reply({
+                            await interaction.editReply({
                                 embeds: [embed]
                             })
                         } else if (docs[0].verification.code === verificationCode) {
@@ -209,7 +211,7 @@ export default {
                                 .setTitle('Verification Success!')
                                 .setDescription("Your discord account has been successfully connected to your nation!")
 
-                            await interaction.reply({
+                            await interaction.editReply({
                                 embeds: [embed]
                             })
                         }

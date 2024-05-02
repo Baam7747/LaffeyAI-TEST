@@ -15,8 +15,9 @@ export default {
 
     slash: true,
 
-    callback: ({ interaction }) => {
-        if (interaction) {
+    callback: async ({ interaction }) => {
+
+            await interaction.deferReply()
 
             userInfo.loadDatabase(async (err) => {    // Callback is optional
 
@@ -67,12 +68,11 @@ export default {
                             { name: 'Aluminum', value: `${thousands_separators(aluminum)}`, inline: true },
                         ])
 
-                    interaction.reply({
+                    interaction.editReply({
                         embeds: [embed]
                     })
                     return
                 })
             })
-        }
     },
 } as ICommand

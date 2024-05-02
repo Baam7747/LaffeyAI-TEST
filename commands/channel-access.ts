@@ -4,7 +4,7 @@ import * as x from '../exports';
 
 export default {
     category: 'Utility',
-    description: 'Adding someone to a war channel!',
+    description: 'Giving someone access to a channel!',
 
     slash: true,
     testOnly: true,

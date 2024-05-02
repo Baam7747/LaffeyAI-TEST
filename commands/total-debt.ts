@@ -15,31 +15,31 @@ export default {
 
     slash: true,
 
-    callback: ({ interaction }) => {
-        if (interaction) {
+    callback: async ({ interaction }) => {
 
-            userInfo.loadDatabase(async (err) => {    // Callback is optional
+        await interaction.deferReply()
 
-                userInfo.find({}, async (err: Error | null, docs: any[]) => {
+        userInfo.loadDatabase(async (err) => {    // Callback is optional
 
-                    let sum = 0
-                    for (var i = 0; i < docs.length; i++) {
-                        sum += parseInt(docs[i].debt);
-                    }
+            userInfo.find({}, async (err: Error | null, docs: any[]) => {
 
-                    let embed = new x.Embed()
-                        .setTitle('Total Debt Towards Alliance')
-                        .setDescription(`Here's how much debt that's owed towards the alliance!`)
-                        .setFields([
-                            { name: 'Money', value: `$${thousands_separators(sum)}`, inline: true },
-                        ])
+                let sum = 0
+                for (var i = 0; i < docs.length; i++) {
+                    sum += parseInt(docs[i].debt);
+                }
 
-                    interaction.reply({
-                        embeds: [embed]
-                    })
-                    return
+                let embed = new x.Embed()
+                    .setTitle('Total Debt Towards Alliance')
+                    .setDescription(`Here's how much debt that's owed towards the alliance!`)
+                    .setFields([
+                        { name: 'Money', value: `$${thousands_separators(sum)}`, inline: true },
+                    ])
+
+                interaction.editReply({
+                    embeds: [embed]
                 })
+                return
             })
-        }
+        })
     },
 } as ICommand

@@ -36,6 +36,9 @@ export default {
     ],
 
     callback: async ({ interaction }) => {
+
+        await interaction.deferReply()
+
         if (interaction.options.getUser('discord_user')) {
 
             const discordID = (interaction.options.getUser('discord_user')!.id).toString()
@@ -50,7 +53,7 @@ export default {
                             .setTitle('Error!')
                             .setDescription(`<@${discordID}> is not in my database! Maybe try using their nation ID?`)
 
-                        interaction.reply({
+                        interaction.editReply({
                             embeds: [embed]
                         })
                         return
@@ -85,7 +88,7 @@ export default {
                                 { name: 'Nukes', value: `${thousands_separators(data.nations.data[0].nukes)}`, inline: true },
                             ])
 
-                        await interaction.reply({
+                        await interaction.editReply({
                             embeds: [embed]
                         })
                         return
@@ -123,7 +126,7 @@ export default {
                     { name: 'Nukes', value: `${thousands_separators(data.nations.data[0].nukes)}`, inline: true },
                 ])
 
-            await interaction.reply({
+            await interaction.editReply({
                 embeds: [embed]
             })
             return

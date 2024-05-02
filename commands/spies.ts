@@ -20,149 +20,161 @@ export default {
     slash: true,
 
     callback: async ({ interaction }) => {
-        if (interaction) {
-            await interaction.deferReply();
 
-            const nationid = interaction.options.getNumber('nation_id')!
-            const endpoint = `https://api.politicsandwar.com/graphql?api_key=${baam}`
+        await interaction.deferReply();
 
-            const query = gql`
+        const nationid = interaction.options.getNumber('nation_id')!
+        const endpoint = `https://api.politicsandwar.com/graphql?api_key=${baam}`
+
+        const query = gql`
             { nations (id: ${nationid}, first: 50) 
               { data 
                 { id, nation_name, war_policy
                 }}}
               `
 
-            const data = await request(endpoint, query)
+        const data = await request(endpoint, query)
 
-            if (data.nations.data[0] == null) {
-                let embed = new x.Embed()
-                    .setTitle('Error!')
-                    .setDescription(`The nation ID **${nationid}** is invalid! Such a nation does not exist!`)
-                await interaction.editReply({
-                    embeds: [embed]
-                })
-                return
-            } else {
+        if (data.nations.data[0] == null) {
+            let embed = new x.Embed()
+                .setTitle('Error!')
+                .setDescription(`The nation ID **${nationid}** is invalid! Such a nation does not exist!`)
+            await interaction.editReply({
+                embeds: [embed]
+            })
+            return
+        } else {
 
-                if (data.nations.data[0].war_policy === "Arcane") {
+            if (data.nations.data[0].war_policy === "ARCANE") {
 
-                    let myspies = 0
+                console.log('Starting arcane calculations')
 
-                    let getSpies = async () => {
-                        let response = await axios.get(`https://politicsandwar.com/war/espionage_get_odds.php?id1=238948&id2=${nationid}&id3=spies&id4=high&id5=${myspies}`);
-                        let spies = response.data;
-                        return spies;
-                    };
-                    let spiesValue = await getSpies();
-                    console.log(spiesValue);
+                let myspies = 0
 
-                    if (spiesValue == "Greater than 50%") {
-                        let embed = new x.Embed()
-                            .setTitle('Spy Calculation')
-                            .setDescription(`${nationid}: ${data.nations.data[0].nation_name} has **0** spies`)
-                        await interaction.editReply({
-                            embeds: [embed],
-                        })
-                    }
-                    else {
+                let getSpies = async () => {
+                    let response = await axios.get(`https://politicsandwar.com/war/espionage_get_odds.php?id1=238948&id2=${nationid}&id3=spies&id4=high&id5=${myspies}`);
+                    let spies = response.data;
+                    return spies;
+                };
+                let spiesValue = await getSpies();
+                console.log(spiesValue, myspies);
 
-                        while (spiesValue == "Lower than 50%") {
+                if (spiesValue == "Greater than 50%") {
+                    let embed = new x.Embed()
+                        .setTitle('Spy Calculation')
+                        .setDescription(`${nationid}: ${data.nations.data[0].nation_name} has **0** spies`)
+                    await interaction.editReply({
+                        embeds: [embed],
+                    })
+                }
+                else {
 
-                            myspies = myspies + 2
+                    while (spiesValue == "Lower than 50%") {
 
-                            let getSpies = async () => {
-                                let response = await axios.get(`https://politicsandwar.com/war/espionage_get_odds.php?id1=141186&id2=${nationid}&id3=spies&id4=high&id5=${myspies}`);
-                                let spies = response.data;
-                                return spies;
-                            };
-                            let spiesValue = await getSpies();
-                            console.log(spiesValue);
+                        myspies = myspies + 2
 
-                            if (spiesValue == "Greater than 50%") {
+                        let getSpies = async () => {
+                            let response = await axios.get(`https://politicsandwar.com/war/espionage_get_odds.php?id1=141186&id2=${nationid}&id3=spies&id4=high&id5=${myspies}`);
+                            let spies = response.data;
+                            return spies;
+                        };
+                        let spiesValue = await getSpies();
+                        console.log('arcane', spiesValue, myspies);
 
-                                const spycount = ((4 * myspies - 1) / 3) * 0.72
+                        if ((((4 * myspies - 1) / 3) * 0.72) > 60) {
+                            let embed = new x.Embed()
+                                .setTitle('Spy Calculation')
+                                .setDescription(`${nationid}: ${data.nations.data[0].nation_name} has **60** spies`)
+                            await interaction.editReply({
+                                embeds: [embed],
+                            })
+                            break;
+                        }
 
-                                if (spycount > 60) {
-                                    let embed = new x.Embed()
-                                        .setTitle('Spy Calculation')
-                                        .setDescription(`${nationid}: ${data.nations.data[0].nation_name} has **60** spies`)
-                                    await interaction.editReply({
-                                        embeds: [embed],
-                                    })
-                                    break;
-                                }
-                                else {
-                                    let embed = new x.Embed()
-                                        .setTitle('Spy Calculation')
-                                        .setDescription(`${nationid}: ${data.nations.data[0].nation_name} has **${Math.round(spycount)}** spies`)
+                        if (spiesValue == "Greater than 50%") {
 
-                                    await interaction.editReply({
-                                        embeds: [embed],
-                                    })
-                                    break;
-                                }
+                            let spycount = ((4 * myspies - 1) / 3) * 0.72
+
+                            if (spycount > 60) {
+                                let embed = new x.Embed()
+                                    .setTitle('Spy Calculation')
+                                    .setDescription(`${nationid}: ${data.nations.data[0].nation_name} has **60** spies`)
+                                await interaction.editReply({
+                                    embeds: [embed],
+                                })
+                                break;
+                            }
+                            else {
+                                let embed = new x.Embed()
+                                    .setTitle('Spy Calculation')
+                                    .setDescription(`${nationid}: ${data.nations.data[0].nation_name} has **${Math.round(spycount)}** spies`)
+
+                                await interaction.editReply({
+                                    embeds: [embed],
+                                })
+                                break;
                             }
                         }
                     }
-                } else {
+                }
+            } else if (data.nations.data[0].war_policy != "ARCANE") {
 
-                    let myspies = 0
+                console.log('Starting non-arcane calculations')
+                let myspies = 0
 
-                    let getSpies = async () => {
-                        let response = await axios.get(`https://politicsandwar.com/war/espionage_get_odds.php?id1=238948&id2=${nationid}&id3=spies&id4=high&id5=${myspies}`);
-                        let spies = response.data;
-                        return spies;
-                    };
-                    let spiesValue = await getSpies();
-                    console.log(spiesValue);
+                let getSpies = async () => {
+                    let response = await axios.get(`https://politicsandwar.com/war/espionage_get_odds.php?id1=238948&id2=${nationid}&id3=spies&id4=high&id5=${myspies}`);
+                    let spies = response.data;
+                    return spies;
+                };
+                let spiesValue = await getSpies();
+                console.log(spiesValue, myspies);
 
-                    if (spiesValue == "Greater than 50%") {
-                        let embed = new x.Embed()
-                            .setTitle('Spy Calculation')
-                            .setDescription(`${nationid}: ${data.nations.data[0].nation_name} has **0** spies`)
-                        await interaction.editReply({
-                            embeds: [embed],
-                        })
-                        return
-                    }
+                if (spiesValue == "Greater than 50%") {
+                    let embed = new x.Embed()
+                        .setTitle('Spy Calculation')
+                        .setDescription(`${nationid}: ${data.nations.data[0].nation_name} has **0** spies`)
+                    await interaction.editReply({
+                        embeds: [embed],
+                    })
+                    return
+                }
 
-                    else {
+                else {
 
-                        while (spiesValue == "Lower than 50%") {
+                    while (spiesValue == "Lower than 50%") {
 
-                            myspies = myspies + 2
+                        myspies = myspies + 2
 
-                            let getSpies = async () => {
-                                let response = await axios.get(`https://politicsandwar.com/war/espionage_get_odds.php?id1=141186&id2=${nationid}&id3=spies&id4=high&id5=${myspies}`);
-                                let spies = response.data;
-                                return spies;
-                            };
-                            let spiesValue = await getSpies();
-                            console.log(spiesValue);
+                        let getSpies = async () => {
+                            let response = await axios.get(`https://politicsandwar.com/war/espionage_get_odds.php?id1=141186&id2=${nationid}&id3=spies&id4=high&id5=${myspies}`);
+                            let spies = response.data;
+                            return spies;
+                        };
+                        let spiesValue = await getSpies();
+                        console.log(spiesValue, myspies);
 
-                            if (spiesValue == "Greater than 50%") {
+                        if (spiesValue == "Greater than 50%") {
 
-                                const spycount = ((4 * myspies - 1) / 3)
+                            const spycount = ((4 * myspies - 1) / 3)
 
-                                if (spycount > 60) {
-                                    let embed = new x.Embed()
-                                        .setTitle('Spy Calculation')
-                                        .setDescription(`${nationid}: ${data.nations.data[0].nation_name} has **60** spies`)
-                                    await interaction.editReply({
-                                        embeds: [embed],
-                                    })
-                                    break
-                                }
-                                else {
-                                    let embed = new x.Embed()
-                                        .setTitle('Spy Calculation')
-                                        .setDescription(`${nationid}: ${data.nations.data[0].nation_name} has **${Math.round(spycount)}** spies`)
-                                    await interaction.editReply({
-                                        embeds: [embed],
-                                    })
-                                    break;
-                                }
+                            if (spycount > 60) {
+                                let embed = new x.Embed()
+                                    .setTitle('Spy Calculation')
+                                    .setDescription(`${nationid}: ${data.nations.data[0].nation_name} has **60** spies`)
+                                await interaction.editReply({
+                                    embeds: [embed],
+                                })
+                                break
+                            }
+                            else {
+                                let embed = new x.Embed()
+                                    .setTitle('Spy Calculation')
+                                    .setDescription(`${nationid}: ${data.nations.data[0].nation_name} has **${Math.round(spycount)}** spies`)
+                                await interaction.editReply({
+                                    embeds: [embed],
+                                })
+                                break;
                             }
                         }
                     }

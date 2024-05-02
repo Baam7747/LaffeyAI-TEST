@@ -24,7 +24,9 @@ export default {
         }
     ],
 
-    callback: ({ interaction, guild }) => {
+    callback: async ({ interaction, guild }) => {
+
+        await interaction.deferReply()
 
         const member = guild!.members.cache.get(interaction.user.id)
 
@@ -41,7 +43,7 @@ export default {
                             .setTitle('Deposit contents')
                             .setDescription(`<@${discordid}> hasn't deposited anything into the bank!`)
 
-                        interaction.reply({
+                        interaction.editReply({
                             embeds: [embed]
                         })
 
@@ -78,14 +80,14 @@ export default {
                                 { name: 'Aluminum', value: `${thousands_separators(aluminum1)}`, inline: true },
                             ])
 
-                        interaction.reply({
+                        interaction.editReply({
                             embeds: [embed]
                         })
                     }
                 })
                 return
             } else if (!member!.roles.cache.has('857486135717658634') && (interaction.options.getUser('discord_user'))) {
-                interaction.reply(`Insufficient permissions to see the deposits of others! <:laffno:815323381464432671>\nIf you want to see your own deposits, you can run the command without mentioning anyone.`)
+                interaction.editReply(`Insufficient permissions to see the deposits of others! <:laffno:815323381464432671>\nIf you want to see your own deposits, you can run the command without mentioning anyone.`)
                 return
             } else if (!interaction.options.getUser('discord_user')) {
 
@@ -99,7 +101,7 @@ export default {
                             .setTitle('Deposit Contents')
                             .setDescription(`<@${discordid}> hasn't deposited anything into the bank!`)
 
-                        interaction.reply({
+                        interaction.editReply({
                             embeds: [embed]
                         })
                         return
@@ -137,7 +139,7 @@ export default {
                                 { name: 'Aluminum', value: `${thousands_separators(aluminum1)}`, inline: true },
                             ])
 
-                        interaction.reply({
+                        interaction.editReply({
                             embeds: [embed]
                         })
                     }

@@ -32,7 +32,10 @@ export default {
         },
     ],
 
-    callback: ({ interaction }) => {
+    callback: async ({ interaction }) => {
+
+        await interaction.deferReply()
+
         if (interaction.options.getUser('discord_user')) {
 
             const discordid = String(interaction.options.getUser('discord_user')?.id)
@@ -49,7 +52,7 @@ export default {
                             .setTitle('Error!')
                             .setDescription(`The user you mentioned has not verified!`)
 
-                        interaction.reply({
+                        interaction.editReply({
                             embeds: [embed]
                         })
 
@@ -70,14 +73,14 @@ export default {
                             .setTitle('Recorded!')
                             .setDescription(`**$${thousands_separators(money)}** of debt added to <@${discordid}>! Total of **$${thousands_separators(money + money1)}** in debt.`)
 
-                        interaction.reply({
+                        interaction.editReply({
                             embeds: [embed]
                         })
                     }
                 })
             })
         } else if (!interaction.options.getUser('discord_user')) {
-            interaction.reply(`You didn't mention anyone! <:laffno:815323381464432671>`)
+            interaction.editReply(`You didn't mention anyone! <:laffno:815323381464432671>`)
         }
     }
 } as ICommand
